@@ -16,6 +16,10 @@ const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
 light.position.set(0, 20, 0);
 scene.add(light);
 
+// Для анимации
+const clock = new THREE.Clock();
+let mixer;
+
 // Загрузка 3D-модели курицы
 const loader = new GLTFLoader();
 loader.load('/models/chicken.glb', (gltf) => {
@@ -24,7 +28,11 @@ loader.load('/models/chicken.glb', (gltf) => {
   model.position.y = -1;
   scene.add(model);
 
-  animate();
+  // Добавляем анимации
+  mixer = new THREE.AnimationMixer(model);
+  gltf.animations.forEach((clip) => {
+    mixer.clipAction(clip).play();
+  });
 }, undefined, (error) => {
   console.error('Ошибка загрузки модели:', error);
 });
@@ -32,8 +40,12 @@ loader.load('/models/chicken.glb', (gltf) => {
 // Анимация
 function animate() {
   requestAnimationFrame(animate);
+  const delta = clock.getDelta();
+  if (mixer) mixer.update(delta);
   renderer.render(scene, camera);
 }
+
+animate();
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
