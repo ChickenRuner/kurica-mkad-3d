@@ -1,0 +1,12 @@
+{
+  "name": "kurica-mkad-3d",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  }
+}
