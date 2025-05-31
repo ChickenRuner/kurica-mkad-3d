@@ -1,1 +1,0 @@
-# kurica-mkad-3d
