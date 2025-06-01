@@ -47,7 +47,7 @@ loader.load('/models/chicken.glb', (gltf) => {
 // Загрузка машины
 loader.load('/models/car1.glb', (gltf) => {
   car1 = gltf.scene;
-  car1.scale.set(10, 10, 10); // сильно увеличим
+  car1.scale.set(20, 20, 20); // сильно увеличим
   car1.position.set(1.5, -0.75, -30); // поднимаем чуть выше уровня дороги
   scene.add(car1);
 }, undefined, (error) => {
