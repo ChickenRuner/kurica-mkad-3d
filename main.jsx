@@ -47,8 +47,8 @@ loader.load('/models/chicken.glb', (gltf) => {
 // Загрузка машины
 loader.load('/models/car1.glb', (gltf) => {
   car1 = gltf.scene;
-  car1.scale.set(0.8, 0.8, 0.8);
-  car1.position.set(1, -0.5, -30); // справа и сзади
+  car1.scale.set(3, 3, 3); // увеличим в 3 раза
+  car1.position.set(1.5, -0.85, -30); // немного приподнимем
   scene.add(car1);
 }, undefined, (error) => {
   console.error('Ошибка загрузки машины:', error);
