@@ -21,13 +21,12 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 1);
 dirLight.position.set(5, 10, 7.5);
 scene.add(dirLight);
 
-// Переменные
 const clock = new THREE.Clock();
 let mixer;
 let chickenModel;
 let moveDirection = { left: false, right: false, forward: false };
 
-// Загрузка модели
+// Загрузка курицы
 const loader = new GLTFLoader();
 loader.load('/models/chicken.glb', (gltf) => {
   const model = gltf.scene;
@@ -41,7 +40,25 @@ loader.load('/models/chicken.glb', (gltf) => {
     mixer.clipAction(clip).setEffectiveTimeScale(2.5).play();
   });
 }, undefined, (error) => {
-  console.error('Ошибка загрузки модели:', error);
+  console.error('Ошибка загрузки курицы:', error);
+});
+
+// Загрузка и клонирование дороги
+const roadTiles = [];
+const roadTileCount = 10;
+const roadSpacing = 5;
+
+const gltfLoader = new GLTFLoader();
+gltfLoader.load('/models/road.glb', (gltf) => {
+  for (let i = 0; i < roadTileCount; i++) {
+    const tile = gltf.scene.clone();
+    tile.position.set(0, -1, -i * roadSpacing);
+    tile.scale.set(1, 1, 1);
+    scene.add(tile);
+    roadTiles.push(tile);
+  }
+}, undefined, (error) => {
+  console.error('Ошибка загрузки дороги:', error);
 });
 
 // Управление
@@ -56,22 +73,6 @@ document.addEventListener('keyup', (event) => {
   if (event.code === 'ArrowUp') moveDirection.forward = false;
 });
 
-// Дорога
-const roadTiles = [];
-const roadTileLength = 5;
-const roadTileCount = 10;
-
-const roadGeometry = new THREE.BoxGeometry(4, 0.1, roadTileLength);
-const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 });
-
-for (let i = 0; i < roadTileCount; i++) {
-  const tile = new THREE.Mesh(roadGeometry, roadMaterial);
-  tile.position.z = -i * roadTileLength;
-  tile.position.y = -1;
-  scene.add(tile);
-  roadTiles.push(tile);
-}
-
 // Анимация
 function animate() {
   requestAnimationFrame(animate);
@@ -83,11 +84,11 @@ function animate() {
     if (moveDirection.right) chickenModel.position.x += 0.05;
   }
 
-  // Бесконечная дорога
+  // Движение дороги назад
   roadTiles.forEach(tile => {
     tile.position.z += 0.1;
     if (tile.position.z > 5) {
-      tile.position.z -= roadTileCount * roadTileLength;
+      tile.position.z -= roadTileCount * roadSpacing;
     }
   });
 
@@ -95,7 +96,6 @@ function animate() {
 }
 animate();
 
-// Обработка ресайза
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
