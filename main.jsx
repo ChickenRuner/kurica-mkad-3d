@@ -52,6 +52,7 @@ const gltfLoader = new GLTFLoader();
 gltfLoader.load('/models/road.glb', (gltf) => {
   for (let i = 0; i < roadTileCount; i++) {
     const tile = gltf.scene.clone();
+    tile.rotation.y = Math.PI / 2; // Повернуть на 90° вокруг вертикальной оси
     tile.position.set(0, -1, -i * roadSpacing);
     tile.scale.set(1, 1, 1);
     scene.add(tile);
