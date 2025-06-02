@@ -87,12 +87,12 @@ loader.load('/models/car1.glb', (gltf) => {
   console.error('Ошибка загрузки car1:', error);
 });
 
-// Машина 2 (аккуратно настраиваю)
+// Машина 2
 loader.load('/models/car2.glb', (gltf) => {
   car2 = gltf.scene;
-  car2.scale.set(1, 1, 1); // тот же масштаб, чтобы были одинаковые
-  car2.position.set(-1.5, -0.75, -60); // та же высота, как у car1
-  // НЕ вращаю, если она уже смотрит вперёд
+  car2.scale.set(1.5, 1.5, 1.5); // не меняю
+  car2.position.set(-1.5, -0.75, -60); // не меняю
+  car2.rotation.y = Math.PI; // поворачиваем "лицом вперёд"
   scene.add(car2);
 }, undefined, (error) => {
   console.error('Ошибка загрузки car2:', error);
