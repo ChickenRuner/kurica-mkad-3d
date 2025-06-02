@@ -77,23 +77,22 @@ document.addEventListener('keyup', (event) => {
 // Машины
 let car1, car2;
 
-// Машина 1
+// Машина 1 (возвращаю как ты настраивал)
 loader.load('/models/car1.glb', (gltf) => {
   car1 = gltf.scene;
-  car1.scale.set(3, 3, 3); // Подобранный масштаб
-  car1.rotation.y = Math.PI; // Разворот вперёд
-  car1.position.set(1.5, -1, -30); // По высоте выравнена
+  car1.scale.set(20, 20, 20); // как ты сам сделал
+  car1.position.set(1.5, -0.75, -30); // как было у тебя
   scene.add(car1);
 }, undefined, (error) => {
   console.error('Ошибка загрузки car1:', error);
 });
 
-// Машина 2
+// Машина 2 (аккуратно настраиваю)
 loader.load('/models/car2.glb', (gltf) => {
   car2 = gltf.scene;
-  car2.scale.set(3, 3, 3); // Подобранный масштаб
-  car2.rotation.y = Math.PI; // Разворот вперёд
-  car2.position.set(-1.5, -1, -60); // По высоте выравнена
+  car2.scale.set(20, 20, 20); // тот же масштаб, чтобы были одинаковые
+  car2.position.set(-1.5, -0.75, -60); // та же высота, как у car1
+  // НЕ вращаю, если она уже смотрит вперёд
   scene.add(car2);
 }, undefined, (error) => {
   console.error('Ошибка загрузки car2:', error);
