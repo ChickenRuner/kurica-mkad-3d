@@ -77,19 +77,23 @@ document.addEventListener('keyup', (event) => {
 // Машины
 let car1, car2;
 
+// Машина 1
 loader.load('/models/car1.glb', (gltf) => {
   car1 = gltf.scene;
-  car1.scale.set(20, 20, 20);
-  car1.position.set(1.5, -0.75, -30);
+  car1.scale.set(3, 3, 3); // Подобранный масштаб
+  car1.rotation.y = Math.PI; // Разворот вперёд
+  car1.position.set(1.5, -1, -30); // По высоте выравнена
   scene.add(car1);
 }, undefined, (error) => {
   console.error('Ошибка загрузки car1:', error);
 });
 
+// Машина 2
 loader.load('/models/car2.glb', (gltf) => {
   car2 = gltf.scene;
-  car2.scale.set(1, 1, 1);
-  car2.position.set(-1.5, -0.75, -60);
+  car2.scale.set(3, 3, 3); // Подобранный масштаб
+  car2.rotation.y = Math.PI; // Разворот вперёд
+  car2.position.set(-1.5, -1, -60); // По высоте выравнена
   scene.add(car2);
 }, undefined, (error) => {
   console.error('Ошибка загрузки car2:', error);
@@ -140,5 +144,6 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 
 
