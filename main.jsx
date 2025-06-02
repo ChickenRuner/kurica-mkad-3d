@@ -88,7 +88,7 @@ loader.load('/models/car1.glb', (gltf) => {
 
 loader.load('/models/car2.glb', (gltf) => {
   car2 = gltf.scene;
-  car2.scale.set(10, 10, 10);
+  car2.scale.set(1, 1, 1);
   car2.position.set(-1.5, -0.75, -60);
   scene.add(car2);
 }, undefined, (error) => {
