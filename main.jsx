@@ -24,7 +24,6 @@ scene.add(dirLight);
 const clock = new THREE.Clock();
 let mixer;
 let chickenModel;
-let car1;
 let moveDirection = { left: false, right: false, forward: false };
 
 // Загрузка курицы
@@ -44,17 +43,7 @@ loader.load('/models/chicken.glb', (gltf) => {
   console.error('Ошибка загрузки курицы:', error);
 });
 
-// Загрузка машины
-loader.load('/models/car1.glb', (gltf) => {
-  car1 = gltf.scene;
-  car1.scale.set(20, 20, 20); // сильно увеличим
-  car1.position.set(1.5, -0.75, -30); // поднимаем чуть выше уровня дороги
-  scene.add(car1);
-}, undefined, (error) => {
-  console.error('Ошибка загрузки машины:', error);
-});
-
-// Загрузка и клонирование дороги
+// Загрузка дороги
 const roadTiles = [];
 const roadTileCount = 10;
 const roadSpacing = 5;
@@ -63,7 +52,7 @@ const gltfLoader = new GLTFLoader();
 gltfLoader.load('/models/road.glb', (gltf) => {
   for (let i = 0; i < roadTileCount; i++) {
     const tile = gltf.scene.clone();
-    tile.rotation.y = Math.PI / 2; // Повернуть на 90° вокруг оси Y
+    tile.rotation.y = Math.PI / 2;
     tile.position.set(0, -1, -i * roadSpacing);
     tile.scale.set(1, 1, 1);
     scene.add(tile);
@@ -85,19 +74,40 @@ document.addEventListener('keyup', (event) => {
   if (event.code === 'ArrowUp') moveDirection.forward = false;
 });
 
+// Машины
+let car1, car2;
+
+loader.load('/models/car1.glb', (gltf) => {
+  car1 = gltf.scene;
+  car1.scale.set(20, 20, 20);
+  car1.position.set(1.5, -0.75, -30);
+  scene.add(car1);
+}, undefined, (error) => {
+  console.error('Ошибка загрузки car1:', error);
+});
+
+loader.load('/models/car2.glb', (gltf) => {
+  car2 = gltf.scene;
+  car2.scale.set(10, 10, 10);
+  car2.position.set(-1.5, -0.75, -60);
+  scene.add(car2);
+}, undefined, (error) => {
+  console.error('Ошибка загрузки car2:', error);
+});
+
 // Анимация
 function animate() {
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
   if (mixer) mixer.update(delta);
 
-  // Движение курицы
+  // Курица
   if (chickenModel) {
     if (moveDirection.left) chickenModel.position.x -= 0.05;
     if (moveDirection.right) chickenModel.position.x += 0.05;
   }
 
-  // Бесконечная дорога
+  // Дорога
   roadTiles.forEach(tile => {
     tile.position.z += 0.1;
     if (tile.position.z > 5) {
@@ -105,11 +115,18 @@ function animate() {
     }
   });
 
-  // Движение машины
+  // Машины
   if (car1) {
     car1.position.z += 0.2;
-    if (car1.position.z > 10) {
+    if (car1.position.z > 5) {
       car1.position.z = -30;
+    }
+  }
+
+  if (car2) {
+    car2.position.z += 0.25;
+    if (car2.position.z > 5) {
+      car2.position.z = -60;
     }
   }
 
@@ -117,9 +134,11 @@ function animate() {
 }
 animate();
 
+// Ресайз
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 
