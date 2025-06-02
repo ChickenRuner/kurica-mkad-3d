@@ -90,7 +90,7 @@ loader.load('/models/car1.glb', (gltf) => {
 // Машина 2 (аккуратно настраиваю)
 loader.load('/models/car2.glb', (gltf) => {
   car2 = gltf.scene;
-  car2.scale.set(20, 20, 20); // тот же масштаб, чтобы были одинаковые
+  car2.scale.set(1, 1, 1); // тот же масштаб, чтобы были одинаковые
   car2.position.set(-1.5, -0.75, -60); // та же высота, как у car1
   // НЕ вращаю, если она уже смотрит вперёд
   scene.add(car2);
