@@ -91,7 +91,7 @@ loader.load('/models/car1.glb', (gltf) => {
 loader.load('/models/car2.glb', (gltf) => {
   car2 = gltf.scene;
   car2.scale.set(1, 1, 1); // не меняю
-  car2.position.set(-1.5, -1.3, -60); // не меняю
+  car2.position.set(-1.5, -1.2, -60); // не меняю
   car2.rotation.y = Math.PI; // поворачиваем "лицом вперёд"
   scene.add(car2);
 }, undefined, (error) => {
