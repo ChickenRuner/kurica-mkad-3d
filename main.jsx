@@ -26,6 +26,9 @@ let mixer;
 let chickenModel;
 let moveDirection = { left: false, right: false, forward: false };
 
+let isJumping = false;
+let jumpVelocity = 0;
+
 // Загрузка курицы
 const loader = new GLTFLoader();
 loader.load('/models/chicken.glb', (gltf) => {
@@ -67,6 +70,10 @@ document.addEventListener('keydown', (event) => {
   if (event.code === 'ArrowLeft') moveDirection.left = true;
   if (event.code === 'ArrowRight') moveDirection.right = true;
   if (event.code === 'ArrowUp') moveDirection.forward = true;
+  if (event.code === 'Space' && !isJumping) {
+    isJumping = true;
+    jumpVelocity = 0.15;
+  }
 });
 document.addEventListener('keyup', (event) => {
   if (event.code === 'ArrowLeft') moveDirection.left = false;
@@ -77,26 +84,36 @@ document.addEventListener('keyup', (event) => {
 // Машины
 let car1, car2;
 
-// Машина 1 (возвращаю как ты настраивал)
 loader.load('/models/car1.glb', (gltf) => {
   car1 = gltf.scene;
-  car1.scale.set(20, 20, 20); // как ты сам сделал
-  car1.position.set(1.5, -0.75, -30); // как было у тебя
+  car1.scale.set(20, 20, 20);
+  car1.position.set(1.5, -0.75, -30);
   scene.add(car1);
 }, undefined, (error) => {
   console.error('Ошибка загрузки car1:', error);
 });
 
-// Машина 2
 loader.load('/models/car2.glb', (gltf) => {
   car2 = gltf.scene;
-  car2.scale.set(1, 1, 1); // не меняю
-  car2.position.set(-1.5, -1.1, -60); // не меняю
-  car2.rotation.y = Math.PI; // поворачиваем "лицом вперёд"
+  car2.scale.set(1, 1, 1);
+  car2.position.set(-1.5, -1.1, -60);
+  car2.rotation.y = Math.PI;
   scene.add(car2);
 }, undefined, (error) => {
   console.error('Ошибка загрузки car2:', error);
 });
+
+// Препятствия
+const obstacles = [];
+const obstacleGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+const obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+
+for (let i = 0; i < 3; i++) {
+  const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
+  obstacle.position.set((i - 1) * 1.5, 0.25, -20 - i * 15);
+  scene.add(obstacle);
+  obstacles.push(obstacle);
+}
 
 // Анимация
 function animate() {
@@ -104,10 +121,19 @@ function animate() {
   const delta = clock.getDelta();
   if (mixer) mixer.update(delta);
 
-  // Курица
   if (chickenModel) {
     if (moveDirection.left) chickenModel.position.x -= 0.05;
     if (moveDirection.right) chickenModel.position.x += 0.05;
+
+    // Прыжок
+    if (isJumping) {
+      chickenModel.position.y += jumpVelocity;
+      jumpVelocity -= 0.01;
+      if (chickenModel.position.y <= 0) {
+        chickenModel.position.y = 0;
+        isJumping = false;
+      }
+    }
   }
 
   // Дорога
@@ -133,6 +159,14 @@ function animate() {
     }
   }
 
+  // Препятствия
+  obstacles.forEach(obstacle => {
+    obstacle.position.z += 0.1;
+    if (obstacle.position.z > 5) {
+      obstacle.position.z = -40 - Math.random() * 20;
+    }
+  });
+
   renderer.render(scene, camera);
 }
 animate();
@@ -143,6 +177,5 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
 
 
