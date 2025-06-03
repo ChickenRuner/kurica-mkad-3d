@@ -25,9 +25,9 @@ const clock = new THREE.Clock();
 let mixer;
 let chickenModel;
 let moveDirection = { left: false, right: false, forward: false };
-
+let velocityY = 0;
 let isJumping = false;
-let jumpVelocity = 0;
+let isGameOver = false;
 
 // Загрузка курицы
 const loader = new GLTFLoader();
@@ -69,21 +69,18 @@ gltfLoader.load('/models/road.glb', (gltf) => {
 document.addEventListener('keydown', (event) => {
   if (event.code === 'ArrowLeft') moveDirection.left = true;
   if (event.code === 'ArrowRight') moveDirection.right = true;
-  if (event.code === 'ArrowUp') moveDirection.forward = true;
-  if (event.code === 'Space' && !isJumping) {
+  if (event.code === 'ArrowUp' && !isJumping) {
+    velocityY = 0.15;
     isJumping = true;
-    jumpVelocity = 0.15;
   }
 });
 document.addEventListener('keyup', (event) => {
   if (event.code === 'ArrowLeft') moveDirection.left = false;
   if (event.code === 'ArrowRight') moveDirection.right = false;
-  if (event.code === 'ArrowUp') moveDirection.forward = false;
 });
 
 // Машины
 let car1, car2;
-
 loader.load('/models/car1.glb', (gltf) => {
   car1 = gltf.scene;
   car1.scale.set(20, 20, 20);
@@ -105,35 +102,67 @@ loader.load('/models/car2.glb', (gltf) => {
 
 // Препятствия
 const obstacles = [];
-const obstacleGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-const obstacleMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+const obstacleModels = [];
+const lanes = [-1.5, 0, 1.5];
 
-for (let i = 0; i < 3; i++) {
-  const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
-  obstacle.position.set((i - 1) * 1.5, 0.25, -20 - i * 15);
-  scene.add(obstacle);
-  obstacles.push(obstacle);
+function spawnObstacle(model) {
+  const clone = model.clone();
+  clone.position.set(lanes[Math.floor(Math.random() * 3)], 0, -60 - Math.random() * 40);
+  scene.add(clone);
+  obstacles.push(clone);
 }
 
-// Анимация
+// Загрузка препятствий
+gltfLoader.load('/models/obstacle1.glb', (gltf) => {
+  obstacleModels.push(gltf.scene);
+  spawnObstacle(gltf.scene);
+}, undefined, (error) => {
+  console.error('Ошибка загрузки obstacle1:', error);
+});
+
+gltfLoader.load('/models/obstacle2.glb', (gltf) => {
+  obstacleModels.push(gltf.scene);
+  spawnObstacle(gltf.scene);
+}, undefined, (error) => {
+  console.error('Ошибка загрузки obstacle2:', error);
+});
+
+function resetGame() {
+  location.reload();
+}
+
+function checkCollision(a, b) {
+  const ab = new THREE.Box3().setFromObject(a);
+  const bb = new THREE.Box3().setFromObject(b);
+  return ab.intersectsBox(bb);
+}
+
 function animate() {
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
   if (mixer) mixer.update(delta);
+  if (isGameOver) return;
 
   if (chickenModel) {
-    if (moveDirection.left) chickenModel.position.x -= 0.05;
-    if (moveDirection.right) chickenModel.position.x += 0.05;
+    if (moveDirection.left) chickenModel.position.x = Math.max(-1.5, chickenModel.position.x - 0.05);
+    if (moveDirection.right) chickenModel.position.x = Math.min(1.5, chickenModel.position.x + 0.05);
 
     // Прыжок
-    if (isJumping) {
-      chickenModel.position.y += jumpVelocity;
-      jumpVelocity -= 0.01;
-      if (chickenModel.position.y <= 0) {
-        chickenModel.position.y = 0;
-        isJumping = false;
-      }
+    chickenModel.position.y += velocityY;
+    velocityY -= 0.01;
+    if (chickenModel.position.y <= 0) {
+      chickenModel.position.y = 0;
+      velocityY = 0;
+      isJumping = false;
     }
+
+    // Столкновения
+    [car1, car2, ...obstacles].forEach(obj => {
+      if (obj && checkCollision(chickenModel, obj)) {
+        isGameOver = true;
+        setTimeout(resetGame, 1500);
+      }
+    });
   }
 
   // Дорога
@@ -148,22 +177,26 @@ function animate() {
   if (car1) {
     car1.position.z += 0.2;
     if (car1.position.z > 5) {
-      car1.position.z = -30;
+      car1.position.z = -30 - Math.random() * 20;
+      car1.position.x = lanes[Math.floor(Math.random() * 3)];
     }
   }
 
   if (car2) {
     car2.position.z += 0.25;
     if (car2.position.z > 5) {
-      car2.position.z = -60;
+      car2.position.z = -60 - Math.random() * 20;
+      car2.position.x = lanes[Math.floor(Math.random() * 3)];
     }
   }
 
-  // Препятствия
-  obstacles.forEach(obstacle => {
-    obstacle.position.z += 0.1;
-    if (obstacle.position.z > 5) {
-      obstacle.position.z = -40 - Math.random() * 20;
+  // Препятствия движение
+  obstacles.forEach(ob => {
+    ob.position.z += 0.1;
+    if (ob.position.z > 5) {
+      scene.remove(ob);
+      obstacles.splice(obstacles.indexOf(ob), 1);
+      spawnObstacle(obstacleModels[Math.floor(Math.random() * obstacleModels.length)]);
     }
   });
 
