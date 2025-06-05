@@ -115,7 +115,7 @@ function spawnObstacle(model) {
 // Загрузка препятствий
 gltfLoader.load('/models/obstacle1.glb', (gltf) => {
   const model = gltf.scene;
-  model.rotation.x = Math.PI / 2; // поворот горизонтально
+  model.rotation.y = Math.PI / 4; // немного повернуть влево
   obstacleModels.push(model);
   spawnObstacle(model);
 }, undefined, (error) => {
@@ -124,7 +124,7 @@ gltfLoader.load('/models/obstacle1.glb', (gltf) => {
 
 gltfLoader.load('/models/obstacle2.glb', (gltf) => {
   const model = gltf.scene;
-  model.position.y = -0.3; // опустить ближе к земле
+  model.position.y = -0.5; // опустить ближе к земле
   obstacleModels.push(model);
   spawnObstacle(model);
 }, undefined, (error) => {
