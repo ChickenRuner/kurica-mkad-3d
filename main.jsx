@@ -124,7 +124,7 @@ gltfLoader.load('/models/obstacle1.glb', (gltf) => {
 
 gltfLoader.load('/models/obstacle2.glb', (gltf) => {
   const model = gltf.scene;
-  model.position.y = -1.2; // сильно опустить
+  model.position.y = -1.5; // сильно опустить
   obstacleModels.push(model);
   spawnObstacle(model);
 }, undefined, (error) => {
