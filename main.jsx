@@ -114,15 +114,19 @@ function spawnObstacle(model) {
 
 // Загрузка препятствий
 gltfLoader.load('/models/obstacle1.glb', (gltf) => {
-  obstacleModels.push(gltf.scene);
-  spawnObstacle(gltf.scene);
+  const model = gltf.scene;
+  model.rotation.x = Math.PI / 2; // поворот горизонтально
+  obstacleModels.push(model);
+  spawnObstacle(model);
 }, undefined, (error) => {
   console.error('Ошибка загрузки obstacle1:', error);
 });
 
 gltfLoader.load('/models/obstacle2.glb', (gltf) => {
-  obstacleModels.push(gltf.scene);
-  spawnObstacle(gltf.scene);
+  const model = gltf.scene;
+  model.position.y = -0.3; // опустить ближе к земле
+  obstacleModels.push(model);
+  spawnObstacle(model);
 }, undefined, (error) => {
   console.error('Ошибка загрузки obstacle2:', error);
 });
@@ -210,5 +214,3 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-
