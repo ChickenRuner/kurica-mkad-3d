@@ -25,8 +25,10 @@ const clock = new THREE.Clock();
 let mixer;
 let chickenModel;
 let moveDirection = { left: false, right: false, forward: false };
-let velocityY = 0;
 let isJumping = false;
+let jumpStartTime = 0;
+const jumpDuration = 0.7; // секунды
+const jumpHeight = 1.5; // высота прыжка
 let isGameOver = false;
 
 // Загрузка курицы
@@ -70,8 +72,8 @@ document.addEventListener('keydown', (event) => {
   if (event.code === 'ArrowLeft') moveDirection.left = true;
   if (event.code === 'ArrowRight') moveDirection.right = true;
   if (event.code === 'ArrowUp' && !isJumping) {
-    velocityY = 0.15;
     isJumping = true;
+    jumpStartTime = clock.getElapsedTime();
   }
 });
 document.addEventListener('keyup', (event) => {
@@ -112,16 +114,28 @@ loader.load('/models/car2.glb', (gltf) => {
 const obstacles = [];
 const obstacleModels = [];
 
+function isLaneFreeForObstacle(laneIndex, zPos) {
+  // Проверяем, не едет ли в данный момент по этой полосе машина "рядом" (safe gap 10 ед)
+  const safeGap = 10;
+  if (car1 && lanes.indexOf(car1.position.x) === laneIndex && Math.abs(car1.position.z - zPos) < safeGap) return false;
+  if (car2 && lanes.indexOf(car2.position.x) === laneIndex && Math.abs(car2.position.z - zPos) < safeGap) return false;
+  return !occupiedLanes[laneIndex];
+}
+
 function spawnObstacle(model) {
-  const freeLanes = lanes.filter((lane, index) => !occupiedLanes[index]);
+  const zPos = -60 - Math.random() * 40;
+  const freeLanes = lanes
+    .map((lane, index) => ({ lane, index }))
+    .filter(laneObj => isLaneFreeForObstacle(laneObj.index, zPos));
+
   if (freeLanes.length === 0) return;
 
   const randomIndex = Math.floor(Math.random() * freeLanes.length);
   const selectedLane = freeLanes[randomIndex];
-  const laneIndex = lanes.indexOf(selectedLane);
+  const laneIndex = selectedLane.index;
 
   const clone = model.clone();
-  clone.position.set(selectedLane, 0, -60 - Math.random() * 40);
+  clone.position.set(selectedLane.lane, 0, zPos);
   scene.add(clone);
   obstacles.push({ object: clone, laneIndex: laneIndex });
 
@@ -167,13 +181,16 @@ function animate() {
     if (moveDirection.left) chickenModel.position.x = Math.max(-1.5, chickenModel.position.x - 0.05);
     if (moveDirection.right) chickenModel.position.x = Math.min(1.5, chickenModel.position.x + 0.05);
 
-    // Прыжок
-    chickenModel.position.y += velocityY;
-    velocityY -= 0.01;
-    if (chickenModel.position.y <= 0) {
-      chickenModel.position.y = 0;
-      velocityY = 0;
-      isJumping = false;
+    // Прыжок с синусоидой
+    if (isJumping) {
+      const elapsed = clock.getElapsedTime() - jumpStartTime;
+      if (elapsed >= jumpDuration) {
+        chickenModel.position.y = 0;
+        isJumping = false;
+      } else {
+        const progress = elapsed / jumpDuration;
+        chickenModel.position.y = Math.sin(progress * Math.PI) * jumpHeight;
+      }
     }
 
     // Столкновения
