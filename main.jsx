@@ -101,6 +101,8 @@ let car1, car2;
 let car1OffsetZ = -30;
 let car2OffsetZ = -50;
 const lanes = [-1.5, 0, 1.5];
+let carSpeed1 = 0.2;
+let carSpeed2 = 0.25;
 
 loader.load('/models/car1.glb', (gltf) => {
   car1 = gltf.scene;
@@ -127,7 +129,7 @@ const obstacleModels = [];
 
 function spawnObstacle(model) {
   const clone = model.clone();
-  clone.position.set(lanes[Math.floor(Math.random() * 3)], -1.1, -60 - Math.random() * 40);
+  clone.position.set(lanes[Math.floor(Math.random() * 3)], 0, -60 - Math.random() * 40);
   scene.add(clone);
   obstacles.push(clone);
 }
@@ -201,7 +203,7 @@ function animate() {
 
   // Машины движение
   if (car1) {
-    car1.position.z += 0.2;
+    car1.position.z += carSpeed1;
     if (car1.position.z > 5) {
       car1OffsetZ = -30 - Math.random() * 20;
       car1.position.z = car1OffsetZ;
@@ -210,9 +212,10 @@ function animate() {
   }
 
   if (car2) {
-    car2.position.z += 0.25;
+    car2.position.z += carSpeed2;
     if (car2.position.z > 5) {
-      car2OffsetZ = car1OffsetZ - 15 - Math.random() * 10;
+      // Разные паттерны трафика
+      car2OffsetZ = car1OffsetZ - 15 - Math.random() * 15;
       car2.position.z = car2OffsetZ;
       car2.position.x = lanes[Math.floor(Math.random() * 3)];
     }
@@ -227,6 +230,12 @@ function animate() {
       spawnObstacle(obstacleModels[Math.floor(Math.random() * obstacleModels.length)]);
     }
   });
+
+  // Ускоряем игру
+  if (score % 1000 === 0 && score > 0) {
+    carSpeed1 += 0.01;
+    carSpeed2 += 0.01;
+  }
 
   // Обновляем очки
   score += 1;
